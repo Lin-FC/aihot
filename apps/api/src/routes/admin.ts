@@ -15,6 +15,8 @@ import { listBudgets, listTargets, replaceContactQr, setTargetEnabled, updateBud
 import { createSource, fetchNow, listSources, previewSource, sourceDetail, updateSource } from "@aihot/backend/admin/sources";
 import { sql } from "@aihot/backend/db";
 import { loadContact } from "@aihot/backend/site/contact";
+import { listOpportunities, opportunityDetail } from "@aihot/backend/creator/read";
+import { enqueueManualOpportunity } from "@aihot/backend/creator/opportunity";
 import { sendProblem } from "../http/respond.ts";
 import { adminHandler } from "./admin-auth.ts";
 
@@ -33,6 +35,14 @@ function decodeImage(dataUrl: unknown): Buffer {
 }
 
 export function registerAdmin(app: FastifyInstance) {
+  // Creator opportunities: reads are database-only; analysis always runs in the worker.
+  app.get("/api/admin/opportunities", adminHandler(async (req) => listOpportunities(page(req))));
+  app.get("/api/admin/opportunities/:storyId", adminHandler(async (req, reply) => orNotFound(req, reply, await opportunityDetail(Number(param(req, "storyId"))))));
+  app.post("/api/admin/opportunities/:storyId/analyze", adminHandler(async (req, reply, admin) => {
+    const requestId = String(req.headers["idempotency-key"] ?? "");
+    return orNotFound(req, reply, await enqueueManualOpportunity(Number(param(req, "storyId")), requestId, actorOf(admin)));
+  }));
+
   // Sources (F18)
   app.get("/api/admin/sources", adminHandler(async (req) => {
     const f = q(req);

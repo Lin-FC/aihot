@@ -24,6 +24,7 @@ export const meta: Route.MetaFunction = () => [{ title: `${SITE.name} 后台` },
 export const headers: Route.HeadersFunction = () => ({ "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" });
 
 const NAV: Array<{ group: string; items: Array<{ to: string; label: string; count?: keyof Counts; tone?: "bad" | "accent" }> }> = [
+  { group: "Creator", items: [{ to: "/admin/opportunities", label: "机会" }] },
   {
     group: "内容",
     items: [

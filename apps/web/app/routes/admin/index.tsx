@@ -1,8 +1,8 @@
 import { redirect } from "react-router";
 
-// The admin opens on the sources: the first thing a new site sets up and the list to watch.
+// Creator opportunities are the editorial decision surface for this fork.
 export function loader() {
-  throw redirect("/admin/sources");
+  throw redirect("/admin/opportunities");
 }
 
 export default function AdminIndex() {
